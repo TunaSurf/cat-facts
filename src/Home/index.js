@@ -1,15 +1,12 @@
 import React from 'react';
 
-import LinkModal from '../shared/components/LinkModal';
-import * as MODAL from '../shared/constants/modal';
+import PhoneForm from './components/PhoneForm';
 
 export default function Home() {
   return (
-    <div>
-      Home
-      <LinkModal modalType={MODAL.SIGN_UP} modalProps={{ user: 'user' }}>
-        Open Modal
-      </LinkModal>
-    </div>
+    <>
+      <h1>Cat Facts</h1>
+      <PhoneForm />
+    </>
   );
 }
