@@ -30,8 +30,14 @@ export default class Firebase {
 
   // Accepts a phone number, returns a promise
   addSubscriber = (phoneNumber) => {
-    const callPhoneNumberFunc = this.functions.httpsCallable('addSubscriber');
+    const httpsCallableFunc = this.functions.httpsCallable('addSubscriber');
 
-    return callPhoneNumberFunc({ phoneNumber });
+    return httpsCallableFunc({ phoneNumber });
+  };
+
+  verifySubscriber = (phoneNumber, token) => {
+    const httpsCallableFunc = this.functions.httpsCallable('verifySubscriber');
+
+    return httpsCallableFunc({ phoneNumber, token });
   };
 }

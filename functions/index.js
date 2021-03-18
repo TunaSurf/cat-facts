@@ -1,5 +1,4 @@
-const addSubscriber = require('./addSubscriber');
-const sendMsgToSubscribers = require('./sendMsgToSubscribers');
+const { addSubscriber, verifySubscriber } = require('./subscriber');
+const { sendMsgToSubscribers } = require('./message');
 
-exports.addSubscriber = addSubscriber;
-exports.sendMsgToSubscribers = sendMsgToSubscribers;
+module.exports = { addSubscriber, verifySubscriber, sendMsgToSubscribers };

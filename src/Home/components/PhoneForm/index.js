@@ -1,59 +1,28 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { useFirebase } from '../../../shared/context';
-
-const normalizeInput = (value, prev) => {
-  // if value is empty, return empty
-  if (!value) {
-    return value;
-  }
-
-  // only want digits "1-9", replace all else
-  const currentValue = value.replace(/[^\d]/g, '');
-  const cvLength = currentValue.length;
-
-  // check that the length of the new value is longer or shorter than the previous
-  // value and that it doesn't exceed 10 digits. Otherwise, return prev.
-  if (cvLength !== prev.length && cvLength <= 10) {
-    if (cvLength < 4) {
-      return currentValue;
-    }
-
-    if (cvLength < 7) {
-      // add parentheses
-      return `(${currentValue.slice(0, 3)}) ${currentValue.slice(3)}`;
-    }
-
-    // add a dash
-    return `(${currentValue.slice(0, 3)}) ${currentValue.slice(
-      3,
-      6
-    )}-${currentValue.slice(6, 10)}`;
-  }
-
-  return prev;
-};
+import { color, size } from '../../../shared/utils/styles';
+import PhoneInput from '../PhoneInput';
 
 const validateInput = (value) => {
   let error = null;
 
   if (!value) {
-    error = 'Required';
+    error = 'Phone number required';
   } else if (value.length !== 14) {
-    error = 'Invalid phone format. ex: (555) 555-5555';
+    error = 'Not a valid phone number';
   }
 
   return error;
 };
 
 export default function PhoneForm() {
+  const history = useHistory();
   const firebase = useFirebase();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState(null);
-
-  function handleChange({ target: { value } }) {
-    setPhoneNumber((prev) => normalizeInput(value, prev));
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -64,8 +33,10 @@ export default function PhoneForm() {
       try {
         const res = await firebase.addSubscriber(phoneNumber);
         console.log(res);
+        history.push('/verify', { phoneNumber });
       } catch (error) {
         console.error(error);
+        setError(error.message);
       }
     } else {
       setError(validationError);
@@ -73,20 +44,34 @@ export default function PhoneForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="phone-number">Phone Number</label>
-        <input
-          type="tel"
-          name="phone-number"
-          id="phone-number"
-          value={phoneNumber}
-          placeholder="(555) 555-5555"
-          onChange={handleChange}
+    <Form onSubmit={handleSubmit}>
+      <InputContainer>
+        {error && <Error className="error">{error}</Error>}
+        <PhoneInput
+          phoneNumber={phoneNumber}
+          setPhoneNumber={setPhoneNumber}
+          setError={setError}
         />
-        {error && <p className="error">{error}</p>}
-      </div>
+      </InputContainer>
       <button type="submit">Give me cat facts!</button>
-    </form>
+    </Form>
   );
 }
+
+const Form = styled.form`
+  position: relative;
+  max-width: 250px;
+  margin-top: ${size.spacing.large}px;
+`;
+
+const InputContainer = styled.div`
+  margin-bottom: ${size.spacing.small}px;
+`;
+
+const Error = styled.span`
+  position: absolute;
+  top: -${size.font.small + size.spacing.tiny}px;
+
+  color: ${color.error};
+  font-size: ${size.font.small}px;
+`;
