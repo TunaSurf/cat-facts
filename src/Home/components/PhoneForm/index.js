@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 
-import { useFirebase } from '../../../shared/context';
-import { color, size } from '../../../shared/utils/styles';
+import { useFirebase, useModal } from '../../../shared/context';
+import * as MODAL from '../../../shared/constants/modal';
+import Form from '../../../shared/components/Form';
 import PhoneInput from '../PhoneInput';
 
 const validateInput = (value) => {
@@ -19,8 +18,8 @@ const validateInput = (value) => {
 };
 
 export default function PhoneForm() {
-  const history = useHistory();
   const firebase = useFirebase();
+  const { dispatch } = useModal();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [error, setError] = useState(null);
 
@@ -32,8 +31,12 @@ export default function PhoneForm() {
     if (!validationError) {
       try {
         const res = await firebase.addSubscriber(phoneNumber);
-        console.log(res);
-        history.push('/verify', { phoneNumber });
+
+        dispatch({
+          type: MODAL.SHOW,
+          modalType: MODAL.VERIFY,
+          modalProps: { phoneNumber: res.data.phoneNumber },
+        });
       } catch (error) {
         console.error(error);
         setError(error.message);
@@ -44,34 +47,13 @@ export default function PhoneForm() {
   }
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <InputContainer>
-        {error && <Error className="error">{error}</Error>}
-        <PhoneInput
-          phoneNumber={phoneNumber}
-          setPhoneNumber={setPhoneNumber}
-          setError={setError}
-        />
-      </InputContainer>
+    <Form onSubmit={handleSubmit} error={error}>
+      <PhoneInput
+        phoneNumber={phoneNumber}
+        setPhoneNumber={setPhoneNumber}
+        setError={setError}
+      />
       <button type="submit">Give me cat facts!</button>
     </Form>
   );
 }
-
-const Form = styled.form`
-  position: relative;
-  max-width: 250px;
-  margin-top: ${size.spacing.large}px;
-`;
-
-const InputContainer = styled.div`
-  margin-bottom: ${size.spacing.small}px;
-`;
-
-const Error = styled.span`
-  position: absolute;
-  top: -${size.font.small + size.spacing.tiny}px;
-
-  color: ${color.error};
-  font-size: ${size.font.small}px;
-`;

@@ -3,8 +3,12 @@ import ReactModal from 'react-modal';
 
 import { useModal } from '../../../shared/context/modalContext';
 import * as MODAL from '../../../shared/constants/modal';
+import VerifyModal from './Verify';
+import SuccessModal from './Success';
 
-const customStyles = {
+ReactModal.setAppElement('#root');
+
+const CUSTOM_STYLES = {
   content: {
     top: '50%',
     left: '50%',
@@ -15,7 +19,11 @@ const customStyles = {
   },
 };
 
-ReactModal.setAppElement('#root');
+const MODAL_COMPONENTS = {
+  [MODAL.VERIFY]: VerifyModal,
+  [MODAL.SUCCESS]: SuccessModal,
+  /* other modals */
+};
 
 export default function Modal() {
   const { modalType, modalProps, dispatch } = useModal();
@@ -23,6 +31,8 @@ export default function Modal() {
   if (!modalType) {
     return null;
   }
+
+  const SpecificModal = MODAL_COMPONENTS[modalType];
 
   function closeModal() {
     dispatch({ type: MODAL.HIDE });
@@ -32,13 +42,13 @@ export default function Modal() {
     <ReactModal
       isOpen={!!modalType}
       onRequestClose={closeModal}
-      style={customStyles}
+      style={CUSTOM_STYLES}
       contentLabel="Example Modal"
     >
       <button onClick={closeModal} type="button">
         Close
       </button>
-      <h1>Modal - {modalProps.user}</h1>
+      <SpecificModal {...modalProps} />
     </ReactModal>
   );
 }

@@ -7,10 +7,10 @@ const client = require('twilio')(
 
 const verificationService = async () => {
   const service = await client.verify.services.create({
-    friendlyName: 'My First Verify Service',
+    friendlyName: 'Cat Facts Verify Service',
   });
 
-  console.log(`SERVICE SID: ${service.sid}`);
+  // console.log(`SERVICE SID: ${service.sid}`);
   return service.sid;
 };
 
@@ -20,7 +20,7 @@ const sendVerifyPhoneNumber = async (phoneNumber, serviceSid) => {
     .services(serviceSid)
     .verifications.create({ to: phoneNumber, channel: 'sms' });
 
-  console.log(`VERIFICATION STATUS: ${verification.status}`);
+  // console.log(`VERIFICATION STATUS: ${verification.status}`);
   return verification.status;
 };
 
@@ -29,8 +29,18 @@ const checkVerification = async (phoneNumber, token, serviceSid) => {
     .services(serviceSid)
     .verificationChecks.create({ to: phoneNumber, code: token });
 
-  console.log(`VERIFICATION CHECK STATUS: ${verificationCheck.status}`);
+  // console.log(`VERIFICATION CHECK STATUS: ${verificationCheck.status}`);
   return verificationCheck.status;
+};
+
+const sendMessage = async (body, to) => {
+  const message = await client.messages.create({
+    body: 'Hello from Node',
+    messagingServiceSid: functions.config().twilio.messaging_service_sid,
+    to,
+  });
+
+  console.log(`MESSAGE SENT SID: ${message.sid}`);
 };
 
 module.exports = {
@@ -38,4 +48,5 @@ module.exports = {
   checkVerification,
   verificationService,
   sendVerifyPhoneNumber,
+  sendMessage,
 };

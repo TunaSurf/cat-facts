@@ -1,5 +1,5 @@
 const functions = require('firebase-functions');
-const { db } = require('./initializeFirebase');
+const { db } = require('../initializeFirebase');
 
 const sendMsgToSubscribers = functions.pubsub
   .schedule('15 16 * * *') // This will be run every day at 4:15 PM
